@@ -679,7 +679,7 @@ volatile bool Temperature::raw_temps_ready = false;
 
       // Timeout after MAX_CYCLE_TIME_PID_AUTOTUNE minutes since the last undershoot/overshoot cycle
       #ifndef MAX_CYCLE_TIME_PID_AUTOTUNE
-        #define MAX_CYCLE_TIME_PID_AUTOTUNE 20L
+        #define MAX_CYCLE_TIME_PID_AUTOTUNE 60L
       #endif
       if ((ms - _MIN(t1, t2)) > (MAX_CYCLE_TIME_PID_AUTOTUNE * 60L * 1000L)) {
         TERN_(DWIN_CREALITY_LCD, DWIN_Popup_Temperature(0));
