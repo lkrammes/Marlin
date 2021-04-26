@@ -67,37 +67,37 @@
 #ifdef X_STALL_SENSITIVITY
   #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_DIR < 0
-    #define X_MAX_PIN                       PE15  // E0
+    #define X_MAX_PIN                       PB10  // E0
   #else
-    #define X_MIN_PIN                       PE15  // E0
+    //#define X_MIN_PIN                       PE15  // E0
   #endif
 #else
-  #define X_MIN_PIN                         PB10  // X-
-  #define X_MAX_PIN                         PE15  // E0
+  //#define X_MIN_PIN                         PB10  // X-
+  #define X_MAX_PIN                         PB10  // E0
 #endif
 
 #ifdef Y_STALL_SENSITIVITY
   #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_DIR < 0
-    #define Y_MAX_PIN                       PE10  // E1
+    #define Y_MAX_PIN                       PE12  // E1
   #else
-    #define Y_MIN_PIN                       PE10  // E1
+    //#define Y_MIN_PIN                       PE10  // E1
   #endif
 #else
-  #define Y_MIN_PIN                         PE12  // Y-
-  #define Y_MAX_PIN                         PE10  // E1
+  //#define Y_MIN_PIN                         PE12  // Y-
+  #define Y_MAX_PIN                         PE12  // E1
 #endif
 
 #ifdef Z_STALL_SENSITIVITY
   #define Z_STOP_PIN                  Z_DIAG_PIN
   #if Z_HOME_DIR < 0
-    #define Z_MAX_PIN                       PG5   // E2
+    //#define Z_MAX_PIN                       PG5   // E2
   #else
-    #define Z_MIN_PIN                       PG5   // E2
+    #define Z_MIN_PIN                       PG8   // E2
   #endif
 #else
   #define Z_MIN_PIN                         PG8   // Z-
-  #define Z_MAX_PIN                         PG5   // E2
+  //#define Z_MAX_PIN                         PG5   // E2
 #endif
 
 //
@@ -227,10 +227,10 @@
 //
 // Temperature Sensors
 //
-#define TEMP_0_PIN                          PF4   // T1 <-> E0
+#define TEMP_0_PIN                          PF3   // T0 <-> E0
 #define TEMP_1_PIN                          PF5   // T2 <-> E1
 #define TEMP_2_PIN                          PF6   // T3 <-> E2
-#define TEMP_BED_PIN                        PF3   // T0 <-> Bed
+#define TEMP_BED_PIN                        PF4   // T1 <-> Bed
 
 //
 // Heaters / Fans
