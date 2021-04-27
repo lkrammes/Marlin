@@ -805,7 +805,7 @@
  *                                      X, Y, Z, E0 [, E1[, E2...]]
  */
 // E steps example: steps per revolution s=200, microstepping m=16, effective gear diameter d=10.95: sm/(πd) = 93.02
-#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 800, 93.02 }
+#define DEFAULT_AXIS_STEPS_PER_UNIT   { 80, 80, 800, 415 } //ddxv3
 
 /**
  * Default Max Feed Rate (mm/s)
@@ -1062,7 +1062,7 @@
  *     O-- FRONT --+
  */
 // Note on Creality Ender-5 Plus: Z offset must be adjusted (M851) every time once the probe has been loosen/unmounted.
-#define NOZZLE_TO_PROBE_OFFSET { -28, 1.5, -3.5 }
+#define NOZZLE_TO_PROBE_OFFSET { -27.625, 1.5, -3.5 }
 
 // Most probes should stay away from the edges of the bed, but
 // with NOZZLE_AS_PROBE this can be negative for a wider probing area.
