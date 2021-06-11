@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2021 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,15 +21,19 @@
  */
 #pragma once
 
-#if BOTH(SDSUPPORT, USBD_USE_CDC_MSC) && DISABLED(NO_SD_HOST_DRIVE)
-  #define HAS_SD_HOST_DRIVE 1
-#endif
+#include "../inc/MarlinConfigPre.h"
 
-// Fix F_CPU not being a compile-time constant in STSTM32 framework
-#ifdef BOARD_F_CPU
-  #undef F_CPU
-  #define F_CPU BOARD_F_CPU
-#endif
+#include <Wire.h>
+#include <INA226.h>
 
-// The Sensitive Pins array is not optimizable
-#define RUNTIME_ONLY_ANALOG_TO_DIGITAL
+class Ammeter {
+private:
+  static float scale;
+
+public:
+  static float current;
+  static void init();
+  static float read();
+};
+
+extern Ammeter ammeter;
