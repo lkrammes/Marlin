@@ -32,7 +32,7 @@
 #include "../lcd/marlinui.h"
 
 #if ENABLED(DWIN_CREALITY_LCD)
-  #include "../lcd/dwin/e3v2/dwin.h"
+  #include "../lcd/e3v2/creality/dwin.h"
 #endif
 
 #include "../module/planner.h"        // for synchronize
@@ -302,11 +302,13 @@ void CardReader::printListing(
               pathLong[lenPrependLong - 1] = '/';
             }
             strcpy(pathLong + lenPrependLong, longFilename);
-            printListing(child, /*includeLongNames=*/true, path, pathLong);
+            printListing(child, true, path, pathLong);
           }
           else
+            printListing(child, false, path);
+        #else
+          printListing(child, path);
         #endif
-            printListing(child, path);
       else {
         SERIAL_ECHO_MSG(STR_SD_CANT_OPEN_SUBDIR, dosFilename);
         return;
@@ -937,7 +939,7 @@ const char* CardReader::diveToFile(const bool update_cwd, SdFile* &inDirPtr, con
 
   while (atom_ptr) {
     // Find next subdirectory delimiter
-    char * const name_end = strchr(atom_ptr, '/');
+    const char * const name_end = strchr(atom_ptr, '/');
 
     // Last atom in the path? Item found.
     if (name_end <= atom_ptr) break;
@@ -1022,6 +1024,7 @@ int8_t CardReader::cdup() {
 void CardReader::cdroot() {
   workDir = root;
   flag.workDirIsRoot = true;
+  workDirDepth = 0;
   TERN_(SDCARD_SORT_ALPHA, presort());
 }
 
@@ -1151,7 +1154,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             selectFileByIndex(o1);              // Pre-fetch the first entry and save it
             strcpy(name1, longest_filename());  // so the loop only needs one fetch
-            #if ENABLED(HAS_FOLDER_SORTING)
+            #if HAS_FOLDER_SORTING
               bool dir1 = flag.filenameIsDir;
             #endif
           #endif
