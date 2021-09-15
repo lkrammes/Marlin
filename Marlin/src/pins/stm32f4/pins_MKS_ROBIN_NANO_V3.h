@@ -67,11 +67,10 @@
 #define E0_DIAG_PIN                         PC4
 #define E1_DIAG_PIN                         PE7
 
-//
-#define X_STOP_PIN                          PA15
-#define Y_STOP_PIN                          PD2
-#define Z_MIN_PIN                           PC8
-#define Z_MAX_PIN                           PC4
+#define X_STOP_PIN                    X_DIAG_PIN
+#define Y_STOP_PIN                    Y_DIAG_PIN
+#define Z_MIN_PIN                     Z_DIAG_PIN
+#define Z_MAX_PIN                    E0_DIAG_PIN
 
 //
 // Steppers
@@ -276,7 +275,6 @@
  *                ------                                     ------
  *                 EXP1                                       EXP2
  */
-
 #define EXP1_03_PIN                         PD10
 #define EXP1_04_PIN                         PD11
 #define EXP1_05_PIN                         PE15
@@ -390,7 +388,7 @@
     #if SD_CONNECTION_IS(ONBOARD)
       #define FORCE_SOFT_SPI
     #endif
-	//#define LCD_SCREEN_ROT_180
+    //#define LCD_SCREEN_ROT_180
 
   #else                                           // !MKS_MINI_12864
 
@@ -401,9 +399,9 @@
       #define LCD_PINS_D7            EXP1_03_PIN
     #endif
 
-    #define BOARD_ST7920_DELAY_1    DELAY_NS(96)
-    #define BOARD_ST7920_DELAY_2    DELAY_NS(48)
-    #define BOARD_ST7920_DELAY_3   DELAY_NS(600)
+    #define BOARD_ST7920_DELAY_1              96
+    #define BOARD_ST7920_DELAY_2              48
+    #define BOARD_ST7920_DELAY_3             600
 
   #endif // !MKS_MINI_12864
 
