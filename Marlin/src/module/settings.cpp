@@ -128,7 +128,7 @@
   #include "../feature/tmc_util.h"
 #endif
 
-#if ENABLED(PROBE_TEMP_COMPENSATION)
+#if HAS_PTC
   #include "../feature/probe_temp_comp.h"
 #endif
 
@@ -264,13 +264,16 @@ typedef struct SettingsDataStruct {
   //
   // Temperature first layer compensation values
   //
-  #if ENABLED(PROBE_TEMP_COMPENSATION)
-    int16_t z_offsets_probe[COUNT(temp_comp.z_offsets_probe)], // M871 P I V
-            z_offsets_bed[COUNT(temp_comp.z_offsets_bed)]      // M871 B I V
-            #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-              , z_offsets_ext[COUNT(temp_comp.z_offsets_ext)]  // M871 E I V
-            #endif
-            ;
+  #if HAS_PTC
+    #if ENABLED(PTC_PROBE)
+      int16_t z_offsets_probe[COUNT(ptc.z_offsets_probe)]; // M871 P I V
+    #endif
+    #if ENABLED(PTC_BED)
+      int16_t z_offsets_bed[COUNT(ptc.z_offsets_bed)];     // M871 B I V
+    #endif
+    #if ENABLED(PTC_HOTEND)
+      int16_t z_offsets_hotend[COUNT(ptc.z_offsets_hotend)];     // M871 E I V
+    #endif
   #endif
 
   //
@@ -317,7 +320,7 @@ typedef struct SettingsDataStruct {
   //
   // Material Presets
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     preheat_t ui_material_preset[PREHEAT_COUNT];        // M145 S0 H B F
   #endif
 
@@ -352,7 +355,7 @@ typedef struct SettingsDataStruct {
   //
   // HAS_LCD_CONTRAST
   //
-  int16_t lcd_contrast;                                 // M250 C
+  uint8_t lcd_contrast;                                 // M250 C
 
   //
   // HAS_LCD_BRIGHTNESS
@@ -557,7 +560,7 @@ void MarlinSettings::postprocess() {
 
   TERN_(EXTENSIBLE_UI, ExtUI::onPostprocessSettings());
 
-  // Refresh steps_to_mm with the reciprocal of axis_steps_per_mm
+  // Refresh mm_per_step with the reciprocal of axis_steps_per_mm
   // and init stepper.count[], planner.position[] with current_position
   planner.refresh_positioning();
 
@@ -844,11 +847,15 @@ void MarlinSettings::postprocess() {
     //
     // Thermal first layer compensation values
     //
-    #if ENABLED(PROBE_TEMP_COMPENSATION)
-      EEPROM_WRITE(temp_comp.z_offsets_probe);
-      EEPROM_WRITE(temp_comp.z_offsets_bed);
-      #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-        EEPROM_WRITE(temp_comp.z_offsets_ext);
+    #if HAS_PTC
+      #if ENABLED(PTC_PROBE)
+        EEPROM_WRITE(ptc.z_offsets_probe);
+      #endif
+      #if ENABLED(PTC_BED)
+        EEPROM_WRITE(ptc.z_offsets_bed);
+      #endif
+      #if ENABLED(PTC_HOTEND)
+        EEPROM_WRITE(ptc.z_offsets_hotend);
       #endif
     #else
       // No placeholder data for this feature
@@ -918,7 +925,7 @@ void MarlinSettings::postprocess() {
     //
     // LCD Preheat settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       _FIELD_TEST(ui_material_preset);
       EEPROM_WRITE(ui.material_preset);
     #endif
@@ -1017,7 +1024,7 @@ void MarlinSettings::postprocess() {
     //
     {
       _FIELD_TEST(lcd_contrast);
-      const int16_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
+      const uint8_t lcd_contrast = TERN(HAS_LCD_CONTRAST, ui.contrast, 127);
       EEPROM_WRITE(lcd_contrast);
     }
 
@@ -1471,7 +1478,7 @@ void MarlinSettings::postprocess() {
         store_mesh(ubl.storage_slot);
     #endif
 
-    if (!eeprom_error) LCD_MESSAGEPGM(MSG_SETTINGS_STORED);
+    if (!eeprom_error) LCD_MESSAGE(MSG_SETTINGS_STORED);
 
     TERN_(EXTENSIBLE_UI, ExtUI::onConfigurationStoreWritten(!eeprom_error));
 
@@ -1497,7 +1504,7 @@ void MarlinSettings::postprocess() {
         stored_ver[1] = '\0';
       }
       DEBUG_ECHO_MSG("EEPROM version mismatch (EEPROM=", stored_ver, " Marlin=" EEPROM_VERSION ")");
-      TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_VERSION)));
+      TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_VERSION));
 
       IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_version());
       eeprom_error = true;
@@ -1710,13 +1717,17 @@ void MarlinSettings::postprocess() {
       //
       // Thermal first layer compensation values
       //
-      #if ENABLED(PROBE_TEMP_COMPENSATION)
-        EEPROM_READ(temp_comp.z_offsets_probe);
-        EEPROM_READ(temp_comp.z_offsets_bed);
-        #if ENABLED(USE_TEMP_EXT_COMPENSATION)
-          EEPROM_READ(temp_comp.z_offsets_ext);
+      #if HAS_PTC
+        #if ENABLED(PTC_PROBE)
+          EEPROM_READ(ptc.z_offsets_probe);
         #endif
-        temp_comp.reset_index();
+        # if ENABLED(PTC_BED)
+          EEPROM_READ(ptc.z_offsets_bed);
+        #endif
+        #if ENABLED(PTC_HOTEND)
+          EEPROM_READ(ptc.z_offsets_hotend);
+        #endif
+        ptc.reset_index();
       #else
         // No placeholder data for this feature
       #endif
@@ -1786,7 +1797,7 @@ void MarlinSettings::postprocess() {
       //
       // LCD Preheat settings
       //
-      #if PREHEAT_COUNT
+      #if HAS_PREHEAT
         _FIELD_TEST(ui_material_preset);
         EEPROM_READ(ui.material_preset);
       #endif
@@ -1884,7 +1895,7 @@ void MarlinSettings::postprocess() {
       //
       {
         _FIELD_TEST(lcd_contrast);
-        int16_t lcd_contrast;
+        uint8_t lcd_contrast;
         EEPROM_READ(lcd_contrast);
         if (!validating) {
           TERN_(HAS_LCD_CONTRAST, ui.set_contrast(lcd_contrast));
@@ -2362,7 +2373,7 @@ void MarlinSettings::postprocess() {
       else if (working_crc != stored_crc) {
         eeprom_error = true;
         DEBUG_ERROR_MSG("EEPROM CRC mismatch - (stored) ", stored_crc, " != ", working_crc, " (calculated)!");
-        TERN_(DWIN_CREALITY_LCD_ENHANCED, ui.set_status(GET_TEXT(MSG_ERR_EEPROM_CRC)));
+        TERN_(DWIN_CREALITY_LCD_ENHANCED, LCD_MESSAGE(MSG_ERR_EEPROM_CRC));
         IF_DISABLED(EEPROM_AUTO_INIT, ui.eeprom_alert_crc());
       }
       else if (!validating) {
@@ -2729,6 +2740,11 @@ void MarlinSettings::reset() {
   TERN_(EDITABLE_SERVO_ANGLES, COPY(servo_angles, base_servo_angles)); // When not editable only one copy of servo angles exists
 
   //
+  // Probe Temperature Compensation
+  //
+  TERN_(HAS_PTC, ptc.reset());
+
+  //
   // BLTOUCH
   //
   //#if ENABLED(BLTOUCH)
@@ -2796,7 +2812,7 @@ void MarlinSettings::reset() {
   //
   // Preheat parameters
   //
-  #if PREHEAT_COUNT
+  #if HAS_PREHEAT
     #define _PITEM(N,T) PREHEAT_##N##_##T,
     #if HAS_HOTEND
       constexpr uint16_t hpre[] = { REPEAT2_S(1, INCREMENT(PREHEAT_COUNT), _PITEM, TEMP_HOTEND) };
@@ -3037,7 +3053,7 @@ void MarlinSettings::reset() {
   #define CONFIG_ECHO_START()       gcode.report_echo_start(forReplay)
   #define CONFIG_ECHO_MSG(V...)     do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM(V); }while(0)
   #define CONFIG_ECHO_MSG_P(V...)   do{ CONFIG_ECHO_START(); SERIAL_ECHOLNPGM_P(V); }while(0)
-  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, PSTR(STR))
+  #define CONFIG_ECHO_HEADING(STR)  gcode.report_heading(forReplay, F(STR))
 
   void M92_report(const bool echo=true, const int8_t e=-1);
 
@@ -3052,9 +3068,9 @@ void MarlinSettings::reset() {
     //
     CONFIG_ECHO_HEADING("Linear Units");
     #if ENABLED(INCH_MODE_SUPPORT)
-      SERIAL_ECHOPGM("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
+      SERIAL_ECHO_MSG("  G2", AS_DIGIT(parser.linear_unit_factor == 1.0), " ;");
     #else
-      SERIAL_ECHOPGM("  G21 ;");
+      SERIAL_ECHO_MSG("  G21 ;");
     #endif
     gcode.say_units();
 
@@ -3181,7 +3197,7 @@ void MarlinSettings::reset() {
     //
     // LCD Preheat Settings
     //
-    #if PREHEAT_COUNT
+    #if HAS_PREHEAT
       gcode.M145_report(forReplay);
     #endif
 
@@ -3278,7 +3294,7 @@ void MarlinSettings::reset() {
     //
     // Tool-changing Parameters
     //
-    TERN_(HAS_MULTI_EXTRUDER, gcode.M217_report(forReplay));
+    E_TERN_(gcode.M217_report(forReplay));
 
     //
     // Backlash Compensation
