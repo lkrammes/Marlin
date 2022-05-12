@@ -270,7 +270,7 @@
 // M3/M4/M5 - Spindle/Laser Control
 //
 #if HAS_CUTTER && !defined(SPINDLE_LASER_ENA_PIN)
-  #if !NUM_SERVOS                                 // Use servo connector if possible
+  #if NUM_SERVOS < 2                              // Use servo connector if possible
     #define SPINDLE_LASER_ENA_PIN              4  // Pullup or pulldown!
     #define SPINDLE_LASER_PWM_PIN              6  // Hardware PWM
     #define SPINDLE_DIR_PIN                    5
@@ -752,7 +752,7 @@
 
       #elif ENABLED(FYSETC_MINI_12864)
 
-        // From https://wiki.fysetc.com/Mini12864_Panel/?fbclid=IwAR1FyjuNdVOOy9_xzky3qqo_WeM5h-4gpRnnWhQr_O1Ef3h0AFnFXmCehK8
+        // From https://wiki.fysetc.com/Mini12864_Panel/
 
         #define DOGLCD_A0            EXP1_07_PIN
         #define DOGLCD_CS            EXP1_08_PIN
