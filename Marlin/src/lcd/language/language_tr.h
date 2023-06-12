@@ -431,12 +431,12 @@ namespace Language_tr {
   LSTR MSG_RESTORE_DEFAULTS               = _UxGT("Fabrika Ayarları");
   LSTR MSG_INIT_EEPROM                    = _UxGT("EEPROM'u başlat");
   LSTR MSG_ERR_EEPROM_CRC                 = _UxGT("Hata: EEPROM CRC");
-  LSTR MSG_ERR_EEPROM_INDEX               = _UxGT("Hata: EEPROM Indeks");
+  LSTR MSG_ERR_EEPROM_SIZE                = _UxGT("Hata: EEPROM Boyutu");
   LSTR MSG_ERR_EEPROM_VERSION             = _UxGT("Hata: EEPROM Sürümü");
   LSTR MSG_SETTINGS_STORED                = _UxGT("Ayarlar Kaydedildi");
   LSTR MSG_MEDIA_UPDATE                   = _UxGT("SD Güncellemesi");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Yazıcıyı Resetle");
-  LSTR MSG_REFRESH                        = LCD_STR_REFRESH  _UxGT("Yenile");
+  LSTR MSG_REFRESH                        = LCD_STR_REFRESH _UxGT("Yenile");
   LSTR MSG_INFO_SCREEN                    = _UxGT("Bilgi Ekranı");
   LSTR MSG_INFO_MACHINENAME               = _UxGT("Makine Adı");
   LSTR MSG_INFO_SIZE                      = _UxGT("Boyut");
