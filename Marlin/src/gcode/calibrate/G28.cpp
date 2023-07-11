@@ -36,10 +36,6 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(BD_SENSOR)
-  #include "../../feature/bedlevel/bdl/bdl.h"
-#endif
-
 #if ENABLED(SENSORLESS_HOMING)
   #include "../../feature/tmc_util.h"
 #endif
@@ -229,14 +225,12 @@ void GcodeSuite::G28() {
     return;
   }
 
-  TERN_(BD_SENSOR, bdl.config_state = 0);
-
   #if ENABLED(FULL_REPORT_TO_HOST_FEATURE)
     const M_StateEnum old_grblstate = M_State_grbl;
     set_and_report_grblstate(M_HOMING);
   #endif
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingStart());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingStart());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -274,7 +268,7 @@ void GcodeSuite::G28() {
 
     #if HAS_HOMING_CURRENT
       auto debug_current = [](FSTR_P const s, const int16_t a, const int16_t b) {
-        DEBUG_ECHOF(s); DEBUG_ECHOLNPGM(" current: ", a, " -> ", b);
+        DEBUG_ECHOLN(s, F(" current: "), a, F(" -> "), b);
       };
       #if HAS_CURRENT_HOME(X)
         const int16_t tmc_save_current_X = stepperX.getMilliamps();
@@ -358,7 +352,9 @@ void GcodeSuite::G28() {
 
     endstops.enable(true); // Enable endstops for next homing move
 
-    bool finalRaiseZ = false;
+    #if HAS_Z_AXIS
+      bool finalRaiseZ = false;
+    #endif
 
     #if ENABLED(DELTA)
 
@@ -628,10 +624,12 @@ void GcodeSuite::G28() {
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, do_blocking_move_to_z(delta_clip_start_height));
 
-    // Move to the configured Z only if Z was homed to MIN, because machines that
-    // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
-    // print, and do_move_after_z_homing is not very nuanced.
-    if (finalRaiseZ) do_move_after_z_homing();
+    #if HAS_Z_AXIS
+      // Move to the configured Z only if Z was homed to MIN, because machines that
+      // home to MAX historically expect 'G28 Z' to be safe to use at the end of a
+      // print, and do_move_after_z_homing is not very nuanced.
+      if (finalRaiseZ) do_move_after_z_homing();
+    #endif
 
     TERN_(CAN_SET_LEVELING_AFTER_G28, if (leveling_restore_state) set_bed_leveling_enabled());
 
@@ -649,7 +647,7 @@ void GcodeSuite::G28() {
 
   ui.refresh();
 
-  TERN_(HAS_DWIN_E3V2_BASIC, DWIN_HomingDone());
+  TERN_(HAS_DWIN_E3V2_BASIC, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
 
   report_current_position();
