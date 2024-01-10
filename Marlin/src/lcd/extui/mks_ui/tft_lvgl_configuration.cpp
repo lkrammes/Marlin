@@ -237,11 +237,11 @@ void tft_lvgl_init() {
       uiCfg.print_state = REPRINTING;
 
       #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
-        strncpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
+        strlcpy(public_buf_m, recovery.info.sd_filename, sizeof(public_buf_m));
         card.printLongPath(public_buf_m);
-        strncpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
+        strlcpy(list_file.long_name[sel_id], card.longFilename, sizeof(list_file.long_name[0]));
       #else
-        strncpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
+        strlcpy(list_file.long_name[sel_id], recovery.info.sd_filename, sizeof(list_file.long_name[0]));
       #endif
       lv_draw_printing();
     }
@@ -542,7 +542,7 @@ void lv_encoder_pin_init() {
 
 #endif // HAS_ENCODER_ACTION
 
-#if __PLAT_NATIVE_SIM__
+#ifdef __PLAT_NATIVE_SIM__
   #include <lv_misc/lv_log.h>
   typedef void (*lv_log_print_g_cb_t)(lv_log_level_t level, const char *, uint32_t, const char *);
   extern "C" void lv_log_register_print_cb(lv_log_print_g_cb_t print_cb) {}
