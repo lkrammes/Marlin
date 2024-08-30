@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,6 +21,27 @@
  */
 
 /**
- * $(filename)
+ * mmu2_log.cpp
  */
 
+#include "../../inc/MarlinConfigPre.h"
+
+#if HAS_PRUSA_MMU3
+
+#include "mmu2_log.h"
+
+namespace MMU3 {
+
+  void LogEchoEvent_P(PGM_P const pstr) {
+    SERIAL_ECHO_START(); // @@TODO Decide MMU errors on serial line
+    SERIAL_MMU2();
+    SERIAL_ECHOLN_P(pstr);
+  }
+
+  void LogErrorEvent_P(PGM_P const pstr) {
+    LogEchoEvent_P(pstr);
+  }
+
+} // MMU3
+
+#endif // HAS_PRUSA_MMU3
