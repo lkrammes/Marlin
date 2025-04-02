@@ -114,7 +114,7 @@ void menu_advanced_settings();
   #endif
   #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) S1_SPACE(I) " " L, A##I##_##M)
   #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
-  #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, (READ(FIL_RUNOUT##N##_PIN) != FIL_RUNOUT##N##_STATE) ? PSTR("PRESENT") : PSTR("out"), SS_FULL);
+  #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, FILAMENT_IS_OUT(N) ? PSTR("out") : PSTR("PRESENT"), SS_FULL);
 
   static void screen_endstop_test() {
     if (ui.use_click()) {
@@ -138,7 +138,7 @@ void menu_advanced_settings();
     #if HAS_BED_PROBE && !HAS_DELTA_SENSORLESS_PROBING
       __STOP_ITEM(GET_TEXT_F(MSG_Z_PROBE), Z_MIN_PROBE);
     #endif
-    #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+    #if HAS_FILAMENT_SENSOR
       REPEAT_1(NUM_RUNOUT_SENSORS, FIL_ITEM)
     #endif
 
@@ -410,17 +410,17 @@ void menu_advanced_settings();
 
     #if ENABLED(MENUS_ALLOW_INCH_UNITS)
       #define _EDIT_HOMING_FR(A) do{ \
+        const float minfr = MMS_TO_MMM(planner.settings.min_feedrate_mm_s); \
         const float maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
         editable.decimal = A##_AXIS_UNIT(homing_feedrate_mm_m.A); \
-        EDIT_ITEM(float5, MSG_HOMING_FEEDRATE_N, &editable.decimal, \
-          A##_AXIS_UNIT(10), A##_AXIS_UNIT(maxfr), []{ \
+        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &editable.decimal, \
+          A##_AXIS_UNIT(minfr), A##_AXIS_UNIT(maxfr), []{ \
           homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
         }); \
       }while(0);
     #else
-      #define _EDIT_HOMING_FR(A) do{ \
-        EDIT_ITEM(float5, MSG_HOMING_FEEDRATE_N, &homing_feedrate_mm_m.A, 10, MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)])); \
-      }while(0);
+      #define _EDIT_HOMING_FR(A) \
+        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &homing_feedrate_mm_m.A, MMS_TO_MMM(planner.settings.min_feedrate_mm_s), MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]));
     #endif
 
     MAIN_AXIS_MAP(_EDIT_HOMING_FR);
@@ -450,6 +450,9 @@ void menu_advanced_settings();
     #endif
     #if HAS_HEATED_BED
       EDIT_ITEM(int3, MSG_BED, &ui.material_preset[m].bed_temp, BED_MINTEMP, BED_MAX_TARGET);
+    #endif
+    #if HAS_HEATED_CHAMBER
+      EDIT_ITEM(int3, MSG_CHAMBER, &ui.material_preset[m].chamber_temp, CHAMBER_MINTEMP, CHAMBER_MAX_TARGET);
     #endif
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);

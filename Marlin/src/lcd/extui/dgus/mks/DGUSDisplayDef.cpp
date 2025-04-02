@@ -602,11 +602,18 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Fan Data
   #if HAS_FAN
-    #define FAN_VPHELPER(N)                                                                                                                    \
-      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.setUint8, screen.sendFanToDisplay), \
-      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr),                               \
+    #if HOTENDS <= 4
+      #define FAN_CONTROL HOTENDS
+    #elif FAN_COUNT <= 4
+      #define FAN_CONTROL FAN_COUNT
+    #else
+      #define FAN_CONTROL 4
+    #endif
+    #define FAN_VPHELPER(N) \
+      VPHELPER(VP_Fan##N##_Percentage, &thermalManager.fan_speed[N], screen.percentageToUint8, screen.sendFanToDisplay), \
+      VPHELPER(VP_FAN##N##_CONTROL, &thermalManager.fan_speed[N], screen.handleFanControl, nullptr), \
       VPHELPER(VP_FAN##N##_STATUS, &thermalManager.fan_speed[N], nullptr, screen.sendFanStatusToDisplay),
-    REPEAT(FAN_COUNT, FAN_VPHELPER)
+    REPEAT(FAN_CONTROL, FAN_VPHELPER)
   #endif
 
   // Feedrate
@@ -700,28 +707,28 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   #endif
 
   #if HAS_TRINAMIC_CONFIG   // TMC Current Setting
-    #if AXIS_IS_TMC(X)
+    #if X_IS_TRINAMIC
       VPHELPER(VP_TMC_X_Current, &stepperX.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Y)
+    #if Y_IS_TRINAMIC
       VPHELPER(VP_TMC_Y_Current, &stepperY.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Z)
+    #if Z_IS_TRINAMIC
       VPHELPER(VP_TMC_Z_Current, &stepperZ.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(E0)
+    #if E0_IS_TRINAMIC
       VPHELPER(VP_TMC_E0_Current, &stepperE0.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(E1)
+    #if E1_IS_TRINAMIC
       VPHELPER(VP_TMC_E1_Current, &stepperE1.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(X2)
+    #if X2_IS_TRINAMIC
       VPHELPER(VP_TMC_X1_Current, &stepperX2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Y2)
+    #if Y2_IS_TRINAMIC
       VPHELPER(VP_TMC_Y1_Current, &stepperY2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
-    #if AXIS_IS_TMC(Z2)
+    #if Z2_IS_TRINAMIC
       VPHELPER(VP_TMC_Z1_Current, &stepperZ2.val_mA, screen.tmcChangeConfig, screen.sendWordValueToDisplay),
     #endif
   #endif

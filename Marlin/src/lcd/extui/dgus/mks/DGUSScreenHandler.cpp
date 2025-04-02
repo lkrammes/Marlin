@@ -47,6 +47,10 @@
   #include "../../../../feature/powerloss.h"
 #endif
 
+#if ENABLED(DGUS_MKS_RUNOUT_SENSOR)
+  #define FILAMENT_IS_OUT(N...) (READ(FIL_RUNOUT##N##_PIN) == FIL_RUNOUT##N##_STATE)
+#endif
+
 #if HAS_MEDIA
   extern ExtUI::FileList filelist;
 #endif
@@ -669,49 +673,49 @@ void DGUSScreenHandlerMKS::tmcChangeConfig(DGUS_VP_Variable &var, void *val_ptr)
       #endif
       break;
     case VP_TMC_X_Current:
-      #if AXIS_IS_TMC(X)
+      #if X_IS_TRINAMIC
         stepperX.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_X1_Current:
-      #if AXIS_IS_TMC(X2)
+      #if X2_IS_TRINAMIC
         stepperX2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y_Current:
-      #if AXIS_IS_TMC(Y)
+      #if Y_IS_TRINAMIC
         stepperY.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Y1_Current:
-      #if AXIS_IS_TMC(X2)
+      #if X2_IS_TRINAMIC
         stepperY2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z_Current:
-      #if AXIS_IS_TMC(Z)
+      #if Z_IS_TRINAMIC
         stepperZ.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_Z1_Current:
-      #if AXIS_IS_TMC(Z2)
+      #if Z2_IS_TRINAMIC
         stepperZ2.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E0_Current:
-      #if AXIS_IS_TMC(E0)
+      #if E0_IS_TRINAMIC
         stepperE0.rms_current(tmc_val);
         settings.save();
       #endif
       break;
     case VP_TMC_E1_Current:
-      #if AXIS_IS_TMC(E1)
+      #if E1_IS_TRINAMIC
         stepperE1.rms_current(tmc_val);
         settings.save();
       #endif
@@ -1374,8 +1378,8 @@ void DGUSScreenHandlerMKS::extrudeLoadInit() {
 }
 
 void DGUSScreenHandlerMKS::runoutInit() {
-  #if PIN_EXISTS(MT_DET_1)
-    SET_INPUT_PULLUP(MT_DET_1_PIN);
+  #if ENABLED(DGUS_MKS_RUNOUT_SENSOR) && PIN_EXISTS(FIL_RUNOUT)
+    SET_INPUT_PULLUP(FIL_RUNOUT_PIN);
   #endif
   runout_mks.de_count      = 0;
   runout_mks.de_times      = 10;
@@ -1399,17 +1403,17 @@ void DGUSScreenHandlerMKS::runoutIdle() {
         break;
 
       case UNRUNOUT_STATUS:
-        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+        if (FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_STATUS;
         break;
 
       case RUNOUT_BEGIN_STATUS:
-        if (READ(MT_DET_1_PIN) != MT_DET_PIN_STATE)
+        if (!FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_WAITING_STATUS;
         break;
 
       case RUNOUT_WAITING_STATUS:
-        if (READ(MT_DET_1_PIN) == MT_DET_PIN_STATE)
+        if (FILAMENT_IS_OUT())
           runout_mks.runout_status = RUNOUT_BEGIN_STATUS;
         break;
 
