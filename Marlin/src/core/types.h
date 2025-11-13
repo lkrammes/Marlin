@@ -541,9 +541,9 @@ struct XYval {
   #endif
   #if HAS_Y_AXIS
     FI void set(const T px, const T py)           { x = px; y = py; }
-    FI void set(const T (&arr)[XY])               { x = arr[0]; y = arr[1]; }
+    FI void set(const T (&arr)[2])                { x = arr[0]; y = arr[1]; }
   #endif
-  #if NUM_AXES > XY
+  #if NUM_AXES > 2
     FI void set(const T (&arr)[NUM_AXES])         { x = arr[0]; y = arr[1]; }
   #endif
   #if LOGICAL_AXES > NUM_AXES
@@ -1334,7 +1334,7 @@ public:
 
 // Axis names for G-code parsing, reports, etc.
 constexpr xyze_char_t axis_codes LOGICAL_AXIS_ARRAY('E', 'X', 'Y', 'Z', AXIS4_NAME, AXIS5_NAME, AXIS6_NAME, AXIS7_NAME, AXIS8_NAME, AXIS9_NAME);
-#if NUM_AXES <= XYZ && !HAS_EXTRUDERS
+#if NUM_AXES <= 3 && !HAS_EXTRUDERS
   #define AXIS_CHAR(A) ((char)('X' + A))
   #define IAXIS_CHAR AXIS_CHAR
 #else
