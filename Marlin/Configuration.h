@@ -724,9 +724,9 @@
     #define DEFAULT_KI_LIST {   1.08,   1.08 }
     #define DEFAULT_KD_LIST { 114.00, 114.00 }
   #else
-    #define DEFAULT_KP  18.33
-    #define DEFAULT_KI   1.26
-    #define DEFAULT_KD 66.71
+    #define DEFAULT_KP  17.84
+    #define DEFAULT_KI   1.14
+    #define DEFAULT_KD 69.58
   #endif
 #else
   #define BANG_MAX 255    // Limit hotend current while in bang-bang mode; 255=full current
