@@ -112,7 +112,7 @@ void menu_advanced_settings();
   #else
     #define S1_SPACE(I)
   #endif
-  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, _IF_1_ELSE)(STRINGIFY(A) STRINGIFY(I) S1_SPACE(I) " " L, A##I##_##M)
+  #define STOP_ITEM(A,I,M,L) TERN(HAS_##A##I##_##M##_STATE, _STOP_ITEM, OMIT)(STRINGIFY(A) STRINGIFY(I) S1_SPACE(I) " " L, A##I##_##M)
   #define STOP_MINMAX(A,I) STOP_ITEM(A,I,MIN,"Min") STOP_ITEM(A,I,MAX,"Max")
   #define FIL_ITEM(N) PSTRING_ITEM_N_P(N-1, MSG_FILAMENT_EN, FILAMENT_IS_OUT(N) ? PSTR("out") : PSTR("PRESENT"), SS_FULL);
 
@@ -464,12 +464,6 @@ void menu_advanced_settings();
 
 #if ENABLED(CUSTOM_MENU_CONFIG)
 
-  void _lcd_custom_menus_configuration_gcode(FSTR_P const fstr) {
-    queue.inject(fstr);
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_AUDIBLE_FEEDBACK, ui.completion_feedback());
-    TERN_(CUSTOM_MENU_CONFIG_SCRIPT_RETURN, ui.return_to_status());
-  }
-
   void custom_menus_configuration() {
     START_MENU();
     BACK_ITEM(MSG_MAIN_MENU);
@@ -481,7 +475,7 @@ void menu_advanced_settings();
     #else
       #define _DONE_SCRIPT ""
     #endif
-    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menus_configuration_gcode(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
+    #define GCODE_LAMBDA_CONF(N) []{ _lcd_custom_menu_gcode<ENABLED(CONFIG_MENU_ITEM_##N##_IMMEDIATE)>(F(CONFIG_MENU_ITEM_##N##_GCODE _DONE_SCRIPT)); }
     #define _CUSTOM_ITEM_CONF(N) ACTION_ITEM_F(F(CONFIG_MENU_ITEM_##N##_DESC), GCODE_LAMBDA_CONF(N));
     #define _CUSTOM_ITEM_CONF_CONFIRM(N)            \
       SUBMENU_F(F(CONFIG_MENU_ITEM_##N##_DESC), []{ \
@@ -581,7 +575,7 @@ void menu_advanced_settings();
 #endif // CUSTOM_MENU_CONFIG
 
 void menu_configuration() {
-  const bool busy = printer_busy();
+  const bool busy = marlin.printer_busy();
 
   START_MENU();
   BACK_ITEM(MSG_MAIN_MENU);

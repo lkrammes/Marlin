@@ -29,26 +29,30 @@
 // Defines
 // ------------------------
 
-// Timer configuration constants
-#define STEPPER_TIMER_RATE    2000000
-#define TEMP_TIMER_FREQUENCY  1000
-
 // Timer instance definitions
 #define MF_TIMER_STEP     3
 #define MF_TIMER_TEMP     1
 #define MF_TIMER_PULSE    MF_TIMER_STEP
 
-#define hal_timer_t         uint32_t
-#define HAL_TIMER_TYPE_MAX  UINT16_MAX
+typedef uint32_t hal_timer_t;
+#define HAL_TIMER_TYPE_MAX hal_timer_t(UINT16_MAX)
 
-extern uint32_t GetStepperTimerClkFreq();
+#ifndef HAL_TIMER_RATE
+  extern uint32_t GetStepperTimerClkFreq();
+  #define HAL_TIMER_RATE GetStepperTimerClkFreq()
+#endif
+
+// Timer configuration constants
+#define STEPPER_TIMER_RATE    2000000
+#define TEMP_TIMER_FREQUENCY  1000
 
 // Timer prescaler calculations
-#define STEPPER_TIMER_PRESCALE      (GetStepperTimerClkFreq() / STEPPER_TIMER_RATE)	// Prescaler = 30
+#define STEPPER_TIMER_PRESCALE      ((HAL_TIMER_RATE) / (STEPPER_TIMER_RATE)) // Prescaler = 30
+#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000UL)        // (MHz) Stepper Timer ticks per µs
+
+// Pulse Timer (counter) calculations
+#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE                        // (Hz) Frequency of Pulse Timer
 #define PULSE_TIMER_PRESCALE        STEPPER_TIMER_PRESCALE
-#define STEPPER_TIMER_TICKS_PER_US  ((STEPPER_TIMER_RATE) / 1000000)				        // Stepper timer ticks per µs
-#define PULSE_TIMER_RATE            STEPPER_TIMER_RATE
-#define PULSE_TIMER_TICKS_PER_US    STEPPER_TIMER_TICKS_PER_US
 
 // Timer interrupt priorities
 #define STEP_TIMER_IRQ_PRIORITY 2
@@ -57,7 +61,7 @@ extern uint32_t GetStepperTimerClkFreq();
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()   HAL_timer_enable_interrupt(MF_TIMER_STEP)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT()  HAL_timer_disable_interrupt(MF_TIMER_STEP)
 #define STEPPER_ISR_ENABLED()               HAL_timer_interrupt_enabled(MF_TIMER_STEP)
-#define ENABLE_TEMPERATURE_INTERRUPT()		  HAL_timer_enable_interrupt(MF_TIMER_TEMP)
+#define ENABLE_TEMPERATURE_INTERRUPT()      HAL_timer_enable_interrupt(MF_TIMER_TEMP)
 #define DISABLE_TEMPERATURE_INTERRUPT()     HAL_timer_disable_interrupt(MF_TIMER_TEMP)
 
 extern void Step_Handler();
@@ -89,7 +93,7 @@ static inline constexpr struct {timer::TIMER_Base base; uint8_t timer_number;} b
 };
 
 // Converts a timer base to an integer timer index.
-constexpr int timer_base_to_index(timer::TIMER_Base base) {
+constexpr auto timer_base_to_index(timer::TIMER_Base base) -> int {
   for (const auto& timer : base_to_index) {
     if (timer.base == base) {
       return static_cast<int>(timer.timer_number);
@@ -131,7 +135,7 @@ FORCE_INLINE static hal_timer_t HAL_timer_get_count(const uint8_t timer_number) 
 FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const hal_timer_t value) {
   if (!HAL_timer_initialized(timer_number)) return;
 
-  const uint32_t new_value = static_cast<uint32_t>(value + 1U);
+  const auto new_value = static_cast<uint32_t>(value + 1U);
   GeneralTimer& timer = (timer_number == MF_TIMER_STEP) ? Step_Timer : Temp_Timer;
 
   if (timer_number == MF_TIMER_STEP || timer_number == MF_TIMER_TEMP) {
@@ -141,5 +145,5 @@ FORCE_INLINE static void HAL_timer_set_compare(const uint8_t timer_number, const
   }
 }
 
-#define HAL_timer_isr_prologue(T) NOOP
-#define HAL_timer_isr_epilogue(T) NOOP
+inline void HAL_timer_isr_prologue(const uint8_t) {}
+inline void HAL_timer_isr_epilogue(const uint8_t) {}
