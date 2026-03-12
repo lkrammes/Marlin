@@ -30,22 +30,12 @@
  */
 
 #include "../../../inc/MarlinConfigPre.h"
+#include <stddef.h>
+#include "../../../core/types.h"
 
 //#define TJC_DISPLAY           // Enable for TJC display
 //#define DACAI_DISPLAY         // Enable for DACAI display
 //#define TITLE_CENTERED        // Center Menu Title Text
-
-#if HAS_MESH
-  #define USE_GRID_MESHVIEWER 1
-#endif
-
-#if HAS_MESH
-  #define PROUI_MESH_EDIT       // Add a menu to edit mesh points
-  #if ENABLED(PROUI_MESH_EDIT)
-    #define Z_OFFSET_MIN  -3.0  // (mm)
-    #define Z_OFFSET_MAX   3.0  // (mm)
-  #endif
-#endif
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
@@ -89,32 +79,18 @@
   #define defCaseLightBrightness 255
 #endif
 
-#ifdef Z_AFTER_HOMING
-  #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
-#else
-  #define DEF_Z_AFTER_HOMING 0
+#ifndef Z_AFTER_HOMING
+  #define Z_AFTER_HOMING 0
 #endif
 
-#ifdef PREHEAT_1_TEMP_HOTEND
-  #define DEF_HOTENDPIDT PREHEAT_1_TEMP_HOTEND
-#else
-  #define DEF_HOTENDPIDT 195
-#endif
-#ifdef PREHEAT_1_TEMP_BED
-  #define DEF_BEDPIDT PREHEAT_1_TEMP_BED
-#else
-  #define DEF_BEDPIDT 60
-#endif
-#ifdef PREHEAT_1_TEMP_CHAMBER
-  #define DEF_CHAMBERPIDT PREHEAT_1_TEMP_CHAMBER
-#else
-  #define DEF_CHAMBERPIDT 0
-#endif
 #define DEF_PIDCYCLES 5
 
 /**
  * ProUI internal feature flags
  */
+#if HAS_BED_PROBE
+  #define PROUI_ITEM_ZFR      // Add a menu item to change Z_PROBE_FEEDRATE_SLOW - probe speed
+#endif
 #if ALL(SDCARD_SORT_ALPHA, SDSORT_GCODE)
   #define PROUI_MEDIASORT     // Enable option to sort G-code files
 #endif
@@ -127,7 +103,7 @@
 #if HAS_LIN_ADVANCE_K
   #define PROUI_ITEM_ADVK 1   // Tune > Linear Advance
 #endif
-#if ANY(HAS_PID_HEATING, MPC_AUTOTUNE) && DISABLED(DISABLE_TUNING_GRAPH)
+#if DISABLED(DISABLE_TUNING_GRAPH)
   #define PROUI_TUNING_GRAPH 1
 #endif
 #if PROUI_TUNING_GRAPH
@@ -138,3 +114,18 @@
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
 #define HAS_SD_EXTENDER 1     // Enable to support SD card extender cables
+#define USE_GRID_MESHVIEWER 1 // Enable for two mesh graph types
+
+#if HAS_PROUI_MESH_EDIT
+  #define Z_OFFSET_MIN  -3.0  // (mm)
+  #define Z_OFFSET_MAX   3.0  // (mm)
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
+  #define MIN_MESH_INSET 0
+  #define MAX_MESH_INSET X_BED_SIZE
+#endif
+
+#ifndef MULTIPLE_PROBING
+  #define MULTIPLE_PROBING 0
+#endif
