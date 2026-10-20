@@ -33,13 +33,16 @@
 #include <stddef.h>
 #include "../../../core/types.h"
 
-//#define TJC_DISPLAY           // Enable for TJC display
-//#define DACAI_DISPLAY         // Enable for DACAI display
-//#define TITLE_CENTERED        // Center Menu Title Text
+//#define TJC_DISPLAY         // Enable for TJC display
+//#define DACAI_DISPLAY       // Enable for DACAI display
+//#define TITLE_CENTERED      // Center Menu Title Text
 
 #if defined(__STM32F1__) || defined(STM32F1)
   #define DASH_REDRAW 1
 #endif
+
+#define HAS_FEEDRATE_EDIT 1   // Feedrate percentage
+#define HAS_FLOW_EDIT 1       // Flow percentage
 
 #if DISABLED(PROBE_MANUALLY) && ANY(AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_3POINT, AUTO_BED_LEVELING_UBL)
   #define HAS_ONESTEP_LEVELING 1
@@ -47,10 +50,6 @@
 
 #if !HAS_BED_PROBE && ENABLED(BABYSTEPPING)
   #define JUST_BABYSTEP 1
-#endif
-
-#if ANY(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #define HAS_ZOFFSET_ITEM 1
 #endif
 
 #define defColorBackground  RGB(1, 12, 8)
@@ -109,7 +108,7 @@
 #if PROUI_TUNING_GRAPH
   #define PROUI_ITEM_PLOT     // Plot temp graph viewer
 #endif
-#define HAS_GCODE_PREVIEW 1   // Preview G-code model thumbnail
+#define PROUI_GCODE_PREVIEW 1 // Preview G-code model thumbnail
 #define HAS_CUSTOM_COLORS 1   // Change display colors
 #define HAS_ESDIAG 1          // View End-stop/Runout switch continuity
 #define HAS_LOCKSCREEN 1      // Simple lockscreen
@@ -119,13 +118,4 @@
 #if HAS_PROUI_MESH_EDIT
   #define Z_OFFSET_MIN  -3.0  // (mm)
   #define Z_OFFSET_MAX   3.0  // (mm)
-  #ifndef MESH_INSET
-    #define MESH_INSET 10
-  #endif
-  #define MIN_MESH_INSET 0
-  #define MAX_MESH_INSET X_BED_SIZE
-#endif
-
-#ifndef MULTIPLE_PROBING
-  #define MULTIPLE_PROBING 0
 #endif
