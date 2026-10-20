@@ -829,7 +829,7 @@
 #if ENABLED(PIDTEMPBED)
   //#define MIN_BED_POWER 0   // Min power to improve PID stability (0..MAX_BED_POWER).
                               // Get the power from the temperature report ('M105' => B@:nnn) and try P*2-20 to P*2-10.
-  #define PID_BED_DEBUG     // Print Bed PID debug data to the serial port. Use 'M303 D' to enable/disable.
+  //#define PID_BED_DEBUG   // Print Bed PID debug data to the serial port. Use 'M303 D' to enable/disable.
 
   // 120V 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
@@ -1443,7 +1443,7 @@
  *   https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
  */
 #if DISABLED(CLASSIC_JERK)
-  #define JUNCTION_DEVIATION_MM 0.15 // (mm) Distance from real junction edge
+  #define JUNCTION_DEVIATION_MM 0.08 // (mm) Distance from real junction edge
   #define JD_HANDLE_SMALL_SEGMENTS    // Use curvature estimation instead of just the junction angle
                                       // for small segments (< 1mm) with large junction angles (> 135°).
 #endif
