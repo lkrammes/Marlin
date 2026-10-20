@@ -135,6 +135,8 @@
 // Choose your own or use a service like https://www.uuidgenerator.net/version4
 #define MACHINE_UUID "8cd276e6-41c7-4439-8f4e-f188537ebdac"
 
+// @section stepper drivers
+
 /**
  * Stepper Drivers
  *
@@ -1981,13 +1983,25 @@
 #define X_BED_SIZE 360
 #define Y_BED_SIZE 360
 
-// Travel limits (mm) after homing, corresponding to endstop positions.
+// Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS  8
 #define Y_MIN_POS  -1
 #define Z_MIN_POS  0
 #define X_MAX_POS  X_BED_SIZE + X_MIN_POS
 #define Y_MAX_POS  Y_BED_SIZE + Y_MIN_POS
 #define Z_MAX_POS  400        + Z_MIN_POS
+//#define I_MIN_POS 0
+//#define I_MAX_POS 50
+//#define J_MIN_POS 0
+//#define J_MAX_POS 50
+//#define K_MIN_POS 0
+//#define K_MAX_POS 50
+//#define U_MIN_POS 0
+//#define U_MAX_POS 50
+//#define V_MIN_POS 0
+//#define V_MAX_POS 50
+//#define W_MIN_POS 0
+//#define W_MAX_POS 50
 
 /**
  * Software Endstops
